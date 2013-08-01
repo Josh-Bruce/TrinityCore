@@ -2159,6 +2159,14 @@ class Player : public Unit, public GridObject<Player>
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
 
+		/*********************************************************/
+        /***                   VOTE SYSTEM                     ***/
+        /*********************************************************/
+		bool HasVoted();
+		void ModVotePoints(int amount, bool IsRequired = false);
+		int32 GetVotePoints();
+		void UnbindAllInstances();
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/

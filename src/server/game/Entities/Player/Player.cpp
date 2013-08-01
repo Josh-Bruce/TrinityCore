@@ -17653,6 +17653,99 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
+/**********************************************************/
+/***					VOTE SYSTEM                     ***/
+/**********************************************************/
+bool Player::HasVoted()
+{
+	time_t seconds = time (NULL);
+    uint32 votetime = seconds - 43200;
+
+    QueryResult ipResult = LoginDatabase.PQuery("SELECT * FROM `voting` WHERE `user_ip` = '%s' AND `time` > '%u';", GetSession()->GetRemoteAddress().c_str(), votetime);
+    QueryResult accResult = LoginDatabase.PQuery("SELECT * FROM `voting_points` WHERE `id` = '%u' AND `time` > '%u';", GetSession()->GetAccountId(), votetime);
+
+    if (ipResult || accResult)
+        return true;
+    else
+        return false;
+}
+
+void Player::ModVotePoints(int amount, bool IsRequired)
+{
+	int32 current_points = GetVotePoints();
+    uint32 new_points;
+
+    new_points = current_points + amount;
+
+    if (current_points == -1)
+    {
+        ChatHandler(this->GetSession()).PSendSysMessage("|cffffcc00[Vote Manager]|r|cff00ff00 It appears you have not voted for us before. You must vote at least once to use this utility.|r");
+		return;
+    }    
+    if (amount < 0 && current_points < (amount * -1))
+    {
+        if (IsRequired == true)
+        {
+            ChatHandler(this->GetSession()).PSendSysMessage("|cffffcc00[Vote Manager]|r|cffff0000 You do not have enough Vote Points to use this utility.|r");
+            return;
+        }
+        else
+            new_points = 0;
+    }
+
+    ChatHandler(this->GetSession()).PSendSysMessage("|cffffcc00[Vote Manager]|r|cff00ff00 You now have %u Vote Points.|r", new_points);
+    LoginDatabase.PExecute("UPDATE `voting_points` SET `points` = '%u' WHERE `id` = '%u';", new_points, GetSession()->GetAccountId());
+}
+
+int32 Player::GetVotePoints()
+{
+	QueryResult resultVP = LoginDatabase.PQuery("SELECT `points` FROM `voting_points` WHERE `id` = '%u';", GetSession()->GetAccountId());
+    if (resultVP)
+    {
+        Field *fields = resultVP->Fetch();
+        uint32 points = fields[0].GetUInt32();
+        return points;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+void Player::UnbindAllInstances()
+{
+	if (GetVotePoints() < 5)
+		ChatHandler(this->GetSession()).PSendSysMessage("|cffffcc00[Vote Manager]|r|cffff0000 You do not have enough Vote Points to use this utility.|r");
+	else
+	{
+		int8 diff = -1;
+        uint16 counter = 0;
+        uint16 MapId = 0;
+		for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        {
+            Player::BoundInstancesMap &binds = this->GetBoundInstances(Difficulty(i));
+            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+            {
+                InstanceSave* save = itr->second.save;
+                if (itr->first != this->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
+                {
+                    this->UnbindInstance(itr, Difficulty(i));
+                    counter++;
+                }
+                else
+                    ++itr;
+            }
+        }
+		if (counter != 0)
+		{
+			ChatHandler(this->GetSession()).PSendSysMessage("All (%d) of your instances have been reset!", counter);
+			ModVotePoints(-5, true);
+		}
+		else
+			ChatHandler(this->GetSession()).PSendSysMessage("You do not have any instance bindings to reset.");
+	}
+}
+
 void Player::_LoadActions(PreparedQueryResult result)
 {
     m_actionButtons.clear();

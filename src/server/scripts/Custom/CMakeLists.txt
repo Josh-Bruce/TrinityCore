@@ -10,6 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Custom/tele_npc_vote.cpp
 )
 
 message("  -> Prepared: Custom")
