@@ -1014,7 +1014,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                     else if (_icewall == 3)
                                         me->AI()->Talk(SAY_JAINA_ESCAPE_5);
                                 }
-                                else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                                 {
                                     if (_icewall == 1)
                                         me->AI()->Talk(SAY_SYLVANAS_ESCAPE_3);
@@ -1063,8 +1063,8 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
                             me->AI()->DoCast(me, SPELL_SYLVANAS_DESTROY_ICE_WALL, false);
-                            if (_isattackingwall)
-                                _events.ScheduleEvent(EVENT_ESCAPE_22, 1000);
+                            /*if (_isattackingwall)
+                                _events.ScheduleEvent(EVENT_ESCAPE_22, 1000);*/
                         }
                         break;
 
@@ -1114,10 +1114,20 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         break;
                     case EVENT_ESCAPE_27:
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_1, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
-                        else
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_3, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
-                        me->SummonGameObject(GO_PORTAL, FinalPortalPos.GetPositionX(), FinalPortalPos.GetPositionY(), FinalPortalPos.GetPositionZ(), FinalPortalPos.GetOrientation(), 0, 0, 0, 0, 720000);
+						{
+							if (!_instance->instance->IsHeroic())
+								me->SummonGameObject(GO_CAPTAIN_CHEST_2, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+							else
+								me->SummonGameObject(GO_CAPTAIN_CHEST_4, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+						}
+						else
+						{
+							if (!_instance->instance->IsHeroic())
+								me->SummonGameObject(GO_CAPTAIN_CHEST_1, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+							else
+								me->SummonGameObject(GO_CAPTAIN_CHEST_3, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+						} 
+						me->SummonGameObject(GO_PORTAL, FinalPortalPos.GetPositionX(), FinalPortalPos.GetPositionY(), FinalPortalPos.GetPositionZ(), FinalPortalPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                             lichking->DespawnOrUnsummon(1);
                         break;
@@ -1332,7 +1342,7 @@ public:
             _events.ScheduleEvent(EVENT_FLAMESTRIKE, 6000);
             _events.ScheduleEvent(EVENT_FROSTBOLT, 9000);
             _events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 12000);
-            _events.ScheduleEvent(EVENT_HALLUCINATION, 40000);
+            //_events.ScheduleEvent(EVENT_HALLUCINATION, 40000);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
