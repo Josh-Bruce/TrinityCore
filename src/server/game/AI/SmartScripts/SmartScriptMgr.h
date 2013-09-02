@@ -94,7 +94,7 @@ enum SMART_EVENT
     SMART_EVENT_OOC_LOS                  = 10,      // NoHostile, MaxRnage, CooldownMin, CooldownMax
     SMART_EVENT_RESPAWN                  = 11,      // type, MapId, ZoneId
     SMART_EVENT_TARGET_HEALTH_PCT        = 12,      // HPMin%, HPMax%, RepeatMin, RepeatMax
-    SMART_EVENT_TARGET_CASTING           = 13,      // RepeatMin, RepeatMax
+    SMART_EVENT_TARGET_CASTING           = 13,      // RepeatMin, RepeatMax, spellid
     SMART_EVENT_FRIENDLY_HEALTH          = 14,      // HPDeficit, Radius, RepeatMin, RepeatMax
     SMART_EVENT_FRIENDLY_IS_CC           = 15,      // Radius, RepeatMin, RepeatMax
     SMART_EVENT_FRIENDLY_MISSING_BUFF    = 16,      // SpellId, Radius, RepeatMin, RepeatMax
@@ -155,8 +155,9 @@ enum SMART_EVENT
     SMART_EVENT_GO_EVENT_INFORM          = 71,      // eventId
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
+    SMART_EVENT_FRIENDLY_HEALTH_PCT      = 74,      // minHpPct, maxHpPct, repeatMin, repeatMax
 
-    SMART_EVENT_END                      = 74
+    SMART_EVENT_END                      = 75
 };
 
 struct SmartEvent
@@ -214,11 +215,18 @@ struct SmartEvent
 
         struct
         {
+            uint32 repeatMin;
+            uint32 repeatMax;
+            uint32 spellId;
+        } targetCasting;
+
+        struct
+        {
             uint32 hpDeficit;
             uint32 radius;
             uint32 repeatMin;
             uint32 repeatMax;
-        } friendlyHealt;
+        } friendlyHealth;
 
         struct
         {
@@ -363,6 +371,14 @@ struct SmartEvent
 
         struct
         {
+            uint32 minHpPct;
+            uint32 maxHpPct;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendlyHealthPct;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
@@ -408,7 +424,7 @@ enum SMART_ACTION
     SMART_ACTION_EVADE                              = 24,     // No Params
     SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
-    SMART_ACTION_CALL_CASTEDCREATUREORGO            = 27,     // CreatureId, SpellId
+    // none                                         = 27,
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid, 0 removes all auras
     SMART_ACTION_FOLLOW                             = 29,     // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
     SMART_ACTION_RANDOM_PHASE                       = 30,     // PhaseId1, PhaseId2, PhaseId3...
@@ -492,8 +508,10 @@ enum SMART_ACTION
     SMART_ACTION_SET_POWER                          = 108,    // PowerType, newPower
     SMART_ACTION_ADD_POWER                          = 109,    // PowerType, newPower
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
+    SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
+    SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
 
-    SMART_ACTION_END                                = 111
+    SMART_ACTION_END                                = 113
 };
 
 struct SmartAction
@@ -615,12 +633,6 @@ struct SmartAction
             uint32 inc;
             uint32 dec;
         } incEventPhase;
-
-        struct
-        {
-            uint32 creature;
-            uint32 spell;
-        } callCastedCreatureOrGO;
 
         struct
         {
@@ -947,6 +959,16 @@ struct SmartAction
             uint32 newPower;
         } power;
 
+        struct
+        {
+            uint32 id;
+        } gameEventStop;
+
+        struct
+        {
+            uint32 id;
+        } gameEventStart;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1001,7 +1023,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
-    SMART_TARGET_END                            = 26
+    SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist
+
+    SMART_TARGET_END                            = 27
 };
 
 struct SmartTarget
@@ -1087,6 +1111,11 @@ struct SmartTarget
         {
             uint32 maxDist;
         } closestAttackable;
+
+        struct
+        {
+            uint32 maxDist;
+        } closestFriendly;
 
         struct
         {
@@ -1225,7 +1254,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GO_STATE_CHANGED,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GO_EVENT_INFORM,           SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE }
+    {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags

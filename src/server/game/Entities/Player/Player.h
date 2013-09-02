@@ -169,6 +169,7 @@ enum ReputationSource
     REPUTATION_SOURCE_DAILY_QUEST,
     REPUTATION_SOURCE_WEEKLY_QUEST,
     REPUTATION_SOURCE_MONTHLY_QUEST,
+    REPUTATION_SOURCE_REPEATABLE_QUEST,
     REPUTATION_SOURCE_SPELL
 };
 
@@ -1415,7 +1416,7 @@ class Player : public Unit, public GridObject<Player>
         void KilledMonster(CreatureTemplate const* cInfo, uint64 guid);
         void KilledMonsterCredit(uint32 entry, uint64 guid = 0);
         void KilledPlayerCredit();
-        void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
+        void KillCreditGO(uint32 entry, uint64 guid = 0);
         void TalkedToCreature(uint32 entry, uint64 guid);
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
@@ -1738,6 +1739,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
+        void ApplySpellPenetrationBonus(int32 amount, bool apply);
         void UpdateResistances(uint32 school);
         void UpdateArmor();
         void UpdateMaxHealth();
