@@ -326,8 +326,8 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
-                        me->SetFacingTo(float(M_PI));
+						me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
+						me->SetFacingTo(float(M_PI));
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
                         break;

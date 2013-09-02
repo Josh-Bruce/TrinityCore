@@ -1244,6 +1244,13 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
+	if (obj->GetTypeId() == TYPEID_UNIT)
+        if (obj->GetEntry() == 36980 /* Ice Tomb */)
+            return true;
+    if (GetTypeId() == TYPEID_UNIT)
+        if (GetEntry() == 36980 /* Ice Tomb */)
+            return true;
+
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
     return IsWithinLOS(ox, oy, oz);
